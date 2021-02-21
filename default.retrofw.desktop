@@ -1,0 +1,12 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Name=DCaSTaway
+Type=Application
+Exec=d.sh
+Icon=DCaSTaway_icon
+Comment=Atari ST emulator
+Terminal=false
+Categories=emulators;
+Mimetype=application/atarist-bin;
+X-OD-Manual=readmegcw.txt
+X-OD-NeedsDownscaling=true

@@ -53,9 +53,7 @@ void show_please_wait_saving(SDL_Surface *);
 extern int saveMenu_n_savestate;
 
 static int emulated_mouse_speed=4;
-#ifdef GCWZERO //variable sets whether we use the A-pad for mouse or joystick. 0=joystick
-static int analog_mouse=0;
-#endif
+
 static void inc_mouse_speed(void)
 {
     char n[40];
@@ -94,12 +92,12 @@ static void dec_n_savestate(void)
     set_message((char *)&n[0], 40);
 }
 
-#ifdef DINGOO
+#ifdef GCWZERO
 static void show_mhz(void)
 {
     extern int dingoo_get_clock(void);
     char n[40];
-    sprintf((char *)&n[0],"Dingoo at %iMHz",dingoo_get_clock());
+    sprintf((char *)&n[0],"GCWZERO at %iMHz",dingoo_get_clock());
     set_message((char *)&n[0], 50);
 }
 
@@ -167,14 +165,14 @@ static void dec_dingoo_volumen(void)
 	show_volumen();
 }
 
-#else*//gcw if uses DDINGOO must  comment out above code
+#else
 #define show_mhz()
 #define inc_dingoo_mhz()
-#define dec_dingoo_mhz()
-#define inc_dingoo_brightness()
-#define dec_dingoo_brightness()
-#define inc_dingoo_volumen()
-#define dec_dingoo_volumen()
+#define dec_GCWZERO_mhz()
+#define inc_GCWZERO_brightness()
+#define dec_GCWZERO_brightness()
+#define inc_GCWZERO_volumen()
+#define dec_GCWZERO_volumen()
 #endif
 
 void goMenu(void){
@@ -246,7 +244,7 @@ void goMenu(void){
 }
 
 static int nowSuperThrottle=0, goingSuperThrottle=0;
-#ifndef  DINGOO
+#ifndef  GCWZERO
 static int goingMenu=0;
 #endif
 static int back_mainMenu_sound=0;
@@ -291,9 +289,6 @@ static void swapDisk(void)
 	free(tmp);
 	FDCInit(1);
 	FDCInit(0);
-#ifdef GCWZERO //We need to know if disks have been swapped
-	set_message("Discs A+B Swapped",50);
-#endif
 }
 
 void events_init(void)
@@ -324,9 +319,9 @@ void events_init(void)
     }
 }
 
-void do_events (void) 
+void do_events (void)
 {
-#if !defined(DREAMCAST) && !defined(DINGOO)
+#if !defined(DREAMCAST) && !defined(GCWZERO)
    static int resized=0,resized_w=320,resized_h=240;
 #endif
 #if !defined(DEBUG_FAME) && !defined(AUTOEVENTS)
@@ -337,7 +332,7 @@ void do_events (void)
     SDLKey sym;
     static Uint32 ticks=(Uint32)-1;
     Uint32 now=SDL_GetTicks();
-#ifdef EMULATED_JOYSTICK 
+#ifdef EMULATED_JOYSTICK
     static int return_pressed=0;
     static int escape_pressed=0;
     static int tab_pressed=0;
@@ -531,7 +526,7 @@ void do_events (void)
 #endif
 		}
 		break;
-#ifndef DINGOO
+#ifndef GCWZERO
 	case SDL_JOYAXISMOTION:
 		switch(event.jaxis.axis)
 		{
@@ -588,115 +583,39 @@ void do_events (void)
 				break;
 #ifndef DREAMCAST
 			case 1:
-#ifdef GCWZERO //up /*added mouse controls to A-pad if we set it to do this*/
-				if (event.jaxis.value < -400)
-				{
-					if (gcw_use_analog_pad) {
-						emulated_mouse_up=1;
-						emulated_mouse_down=0;
-						analog_mouse=1;
-					} else {
-						joystate[0] |= JOY_UP;
-						joystate[0] &= ~JOY_DOWN;
-					}
-#else
 				if (event.jaxis.value < -3200)
 				{
 					joystate[0] |= JOY_UP;
 					joystate[0] &= ~JOY_DOWN;
-
-#endif
-
 				}
 				else
-#ifdef GCWZERO //down
-				if (event.jaxis.value > 400)
-				{
-					if (gcw_use_analog_pad) {
-						emulated_mouse_up=0;
-						emulated_mouse_down=1;
-						analog_mouse=1;
-					} else {
-						joystate[0] |= JOY_DOWN;
-						joystate[0] &= ~JOY_UP;
-					}
-#else
 				if (event.jaxis.value > 3200)
 				{
 					joystate[0] |= JOY_DOWN;
 					joystate[0] &= ~JOY_UP;
-#endif
 				}
 				else
 				{
-#ifdef GCWZERO //centre
-					if (gcw_use_analog_pad) {
-						emulated_mouse_up=0;
-						emulated_mouse_down=0;
-						analog_mouse=0;
-					} else {
-						joystate[0] &= ~JOY_UP;
-						joystate[0] &= ~JOY_DOWN;
-					}
-#else
 					joystate[0] &= ~JOY_UP;
 					joystate[0] &= ~JOY_DOWN;
-#endif
 				}
 				break;
 			case 0:
-#ifdef GCWZERO //left
-				if (event.jaxis.value < -400)
-				{
-					if (gcw_use_analog_pad) {
-						emulated_mouse_left=1;
-						emulated_mouse_right=0;
-						analog_mouse=1;
-					} else {
-						joystate[0] |= JOY_LEFT;
-						joystate[0] &= ~JOY_RIGHT;
-					}
-#else
 				if (event.jaxis.value < -3200)
 				{
 					joystate[0] |= JOY_LEFT;
 					joystate[0] &= ~JOY_RIGHT;
-#endif
 				}
 				else
-#ifdef GCWZERO //right
-				if (event.jaxis.value > 400)
-				{
-					if (gcw_use_analog_pad) {
-						emulated_mouse_left=0;
-						emulated_mouse_right=1;
-						analog_mouse=1;
-					} else {
-						joystate[0] |= JOY_RIGHT;
-						joystate[0] &= ~JOY_LEFT;
-					}
-#else
 				if (event.jaxis.value > 3200)
 				{
 					joystate[0] |= JOY_RIGHT;
 					joystate[0] &= ~JOY_LEFT;
-#endif
 				}
 				else
 				{
-#ifdef GCWZERO //centre
-					if (gcw_use_analog_pad) {
-						emulated_mouse_left=0;
-						emulated_mouse_right=0;
-						analog_mouse=0;
-					} else {
-						joystate[0] &= ~JOY_LEFT;
-						joystate[0] &= ~JOY_RIGHT;
-					}
-#else
 					joystate[0] &= ~JOY_LEFT;
 					joystate[0] &= ~JOY_RIGHT;
-#endif
 				}
 				break;
 #endif
@@ -732,7 +651,7 @@ void do_events (void)
 		{
 			if (hat & SDL_HAT_LEFT)
 				joystate[jsn] |= JOY_LEFT;
-			else 
+			else
 			{
 				joystate[jsn] &= ~JOY_LEFT;
 				if (hat & SDL_HAT_RIGHT)
@@ -781,7 +700,7 @@ void do_events (void)
 			inc_dingoo_brightness();
 		else
 #ifndef NO_VKBD
-#ifdef EMULATED_JOYSTICK 
+#ifdef EMULATED_JOYSTICK
 		if (emulated_mouse)
 			emulated_mouse_up=1;
 		else
@@ -913,13 +832,6 @@ void do_events (void)
 			IkbdKeyPress(keysymToAtari[vkbd_button3]);
 			break;
 		}
-
-#ifdef GCWZERO //right click?
-		else 
-			IkbdMousePress(1);
-		break;
-#endif
-
 #endif
 // Si no pulsa el boton SPACE de ST
 	    }
@@ -1060,15 +972,11 @@ void do_events (void)
 		    break;
 #endif
 #endif
-#ifndef DINGOO
+#ifndef GCWZERO
 	    if (event.key.keysym.sym==SDLK_PAGEUP)
 		    goSuperThrottle();
 	    else
-#ifdef GCWZERO //slider up swaps disks
-	    if (event.key.keysym.sym==SDLK_HOME)
-#else
 	    if (event.key.keysym.sym==SDLK_PAGEDOWN)
-#endif
 		    swapDisk();
 	    else
 	    if (event.key.keysym.sym!=SDLK_F12 && event.key.keysym.sym!=SDLK_F11 && event.key.keysym.sym!=SDLK_LMETA && event.key.keysym.sym!=SDLK_RMETA)
@@ -1106,7 +1014,7 @@ void do_events (void)
 		if (escape_pressed)
 			break;
 #ifndef NO_VKBD
-#ifdef EMULATED_JOYSTICK 
+#ifdef EMULATED_JOYSTICK
 		if (emulated_mouse)
 		{
 			emulated_mouse_up=0;
@@ -1182,7 +1090,7 @@ void do_events (void)
 		break;
 	    }
 	    else
-		    
+
 #endif
 #ifdef EMULATED_JOYSTICK
 	    if (event.key.keysym.sym==SDLK_SPACE)
@@ -1205,12 +1113,6 @@ void do_events (void)
 		if (vkbd_button3)
 		{
             		IkbdKeyRelease(keysymToAtari[vkbd_button3]);
-		}
-#endif
-#ifdef GCWZERO //unright click!
-		else {
-             		IkbdMouseRelease(1);
-			break;
 		}
 #endif
 	    }
@@ -1275,7 +1177,7 @@ void do_events (void)
 		    break;
 #endif
 #endif
- #ifndef DINGOO
+#ifndef GCWZERO
 	    if (event.key.keysym.sym==SDLK_F11 || event.key.keysym.sym==SDLK_LMETA || event.key.keysym.sym==SDLK_RMETA)
 		    goMenu();
 	    else
@@ -1342,7 +1244,7 @@ void do_events (void)
 		else
 			IkbdMouseRelease(1);
             break;
-#if !defined(DREAMCAST) && !defined(DINGOO)
+#if !defined(DREAMCAST) && !defined(GCWZERO)
 	case SDL_VIDEORESIZE:
 	    resized_w=event.resize.w;
 	    resized_h=event.resize.h;
@@ -1370,20 +1272,12 @@ void do_events (void)
     	}
     }
 #ifndef NO_VKBD
-#ifdef EMULATED_JOYSTICK 
-#ifdef GCWZERO //control mouse with A pad if set
-    if (emulated_mouse || analog_mouse)
-#else
+#ifdef EMULATED_JOYSTICK
     if (emulated_mouse)
-#endif
     {
 	    static unsigned mx=160;
 	    static unsigned my=100;
-#ifdef GCWZERO //bugfix, stops mouse going beserk ;)
-	    signed new_x=mx, new_y=my; //unsigned can never be negative!
-#else
 	    unsigned new_x=mx, new_y=my;
-#endif
 	    if (emulated_mouse_up)
 	    {
 		    new_y-=emulated_mouse_speed;
@@ -1408,25 +1302,7 @@ void do_events (void)
 		    if (new_x>640)
 			    new_x=640;
 	    }
-#ifdef GCWZERO //bugfix improves mouse precision considerably
-	    if (new_x!=mx && new_y==my)
-	    {
-//printf("x=%i, y=%i, xrel=%i, yrel=%i\n",mx*mouse_mul, my*mouse_mul, (new_x-mx)*mouse_mul, (new_y-my)*mouse_mul);
-		IkbdMouseMotion(mx*mouse_mul, my*mouse_mul, (new_x-mx)*mouse_mul, 0);
-		mx=new_x; my=new_y;
-	    } else
-	    if (new_x==mx && new_y!=my)
-	    {
-//printf("x=%i, y=%i, xrel=%i, yrel=%i\n",mx*mouse_mul, my*mouse_mul, (new_x-mx)*mouse_mul, (new_y-my)*mouse_mul);
-		IkbdMouseMotion(mx*mouse_mul, my*mouse_mul, 0, (new_y-my)*mouse_mul);
-		mx=new_x; my=new_y;
-	    } else
-
-//	    if (new_x!=mx && new_y!=my)
-	    if (new_x==mx && new_y==my) {} else
-#else
 	    if (new_x!=mx || new_y!=my)
-#endif
 	    {
 //printf("x=%i, y=%i, xrel=%i, yrel=%i\n",mx*mouse_mul, my*mouse_mul, (new_x-mx)*mouse_mul, (new_y-my)*mouse_mul);
 		IkbdMouseMotion(mx*mouse_mul, my*mouse_mul, (new_x-mx)*mouse_mul, (new_y-my)*mouse_mul);
@@ -1449,7 +1325,7 @@ void do_events (void)
 	vkbd_keysave=-1234567;
     }
 #endif
-#if !defined(DREAMCAST) && !defined(DINGOO)
+#if !defined(DREAMCAST) && !defined(GCWZERO)
     if (resized>0)
     {
 	    resized--;
@@ -1500,4 +1376,3 @@ void do_events (void)
     }
 #endif
 }
-

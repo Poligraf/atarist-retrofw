@@ -9,8 +9,7 @@ PROG   = $(NAME)
 
 all: $(PROG)
 
-DEFAULT_CFLAGS = -L/opt/rs97tools/mipsel-RetroFW-linux-uclibc/sysroot/usr/lib/ -I/opt/rs97tools/mipsel-RetroFW-linux-uclibc/sysroot/usr/include/   -I/opt/rs97tools/mipsel-RetroFW-linux-uclibc/sysroot/usr/include/SDL/ -D_GNU_SOURCE=1 -D_REENTRANT -DGCWZERO -Wno-narrowing -Wno-write-strings -fprofile-use -fprofile-dir=./profile
-
+DEFAULT_CFLAGS = -L/opt/rs97tools/mipsel-RetroFW-linux-uclibc/sysroot/usr/lib/ -I/opt/rs97tools/mipsel-RetroFW-linux-uclibc/sysroot/usr/include/   -I/opt/rs97tools/mipsel-RetroFW-linux-uclibc/sysroot/usr/include/SDL/ -D_GNU_SOURCE=1 -D_REENTRANT  -DGCWZERO -Wno-narrowing -Wno-write-strings -Wno-error=coverage-mismatch -fprofile-use -fprofile-dir=./profile
 LDFLAGS = -lSDL -lSDL_mixer -lSDL_image -lz -lpthread
 #-s -static
 
@@ -19,7 +18,7 @@ LZMA=1
 
 #uncomment one of the next two options
 #release build...
-MORE_CFLAGS = -Ofast -DDATA_PREFIX=\"data/\" -DNOARGS -DROM_PATH_PREFIX=\"/home/retrofw/.DCaSTaway/bios/\" -DFILE_SEPARATOR=\"/\" -DSAVE_MEM_PREFIX=\"/tmp/\" -DSAVE_PREFIX=\"./\"
+MORE_CFLAGS = -O3 -DDATA_PREFIX=\"data/\" -DNOARGS -DROM_PATH_PREFIX=\"/home/retrofw/.DCaSTaway/bios/\" -DFILE_SEPARATOR=\"/\" -DSAVE_MEM_PREFIX=\"/tmp/\" -DSAVE_PREFIX=\"./\"
 #or debug version
 #MORE_CFLAGS = -O0 -g -DDATA_PREFIX=\"data/\" -ffast-math -fno-common -fno-builtin -fno-exceptions -fstrict-aliasing -DNOARGS -DROM_PATH_PREFIX=\"/home/retrofw/.DCaSTaway/bios/\" -DFILE_SEPARATOR=\"/\" -DSAVE_MEM_PREFIX=\"/tmp/\" -DSAVE_PREFIX=\"./\"
 
@@ -34,7 +33,7 @@ MORE_CFLAGS+=-DUSE_SHORT_SLICE
 #MORE_CFLAGS+=-DDEBUG_RENDER
 MORE_CFLAGS+=-DUSE_DOUBLE_BUFFER
 MORE_CFLAGS+=-DUSE_FULLSCREEN
-MORE_CFLAGS+=
+MORE_CFLAGS+= -DSOUND_16BIT
 #MORE_CFLAGS+=-DMEMSIZE=0x80000
 
 #MORE_CFLAGS+=-DAUTODIR=\"ST/\"
@@ -60,13 +59,13 @@ CFLAGS  = $(DEFAULT_CFLAGS) $(MORE_CFLAGS) -Isrc -Isrc/m68k -Isrc/st -Isrc/menu 
 CFLAGS += -falign-functions -falign-labels -falign-loops -falign-jumps \
 	-ffast-math -fsingle-precision-constant -funsafe-math-optimizations \
 	-fomit-frame-pointer -fno-builtin -fno-exceptions -fno-common \
-	-fstrict-aliasing  -fexpensive-optimizations -fno-rtti \
-	-finline -finline-functions -fpeel-loops -fno-unroll-loops -flto
+	-fstrict-aliasing  -fexpensive-optimizations  \
+	-finline -finline-functions -fpeel-loops
 
 CFLAGS += -mips32 -mtune=mips32 -mno-mips16 -mno-shared -mbranch-likely -pipe
 #CFLAGS += -O3 -mips32 -mtune=mips32 -mno-mips16 -msoft-float -mno-shared -mbranch-likely -pipe
 #CFLAGS += -O0 -g
-CPPFLAGS  = $(CFLAGS)
+CPPFLAGS  = $(CFLAGS) -fno-rtti
 
 OBJS =	\
 	src/main.o \
